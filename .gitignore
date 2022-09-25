@@ -1,0 +1,10 @@
+# Virtual environment
+gym_env/
+
+# Byte-compiled files
+__pycache__/
+
+# Test results
+a2c_cartpole.zip
+ppo_lunarlander.zip
+ppo_lander.zip
