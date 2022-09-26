@@ -2,9 +2,16 @@ import torch
 import numpy as np
 import os
 import datetime
+import copy
 import matplotlib.pyplot as plt
 from matplotlib.gridspec import GridSpec
 
+
+def true_copy(obj):
+    '''
+    Returns a true copy of an object.
+    '''
+    return copy.deepcopy(obj)
 
 def weights_eq(model1, model2):
     '''
