@@ -209,4 +209,7 @@ class DualRewardWrapper(gym.Wrapper):
             reward = +100
         self.renderer.render_step()
 
+        if self.flag:
+            reward = 0
+
         return np.array(state, dtype=np.float32), reward, terminated, {}

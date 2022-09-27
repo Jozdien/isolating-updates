@@ -9,8 +9,8 @@ BASE_ENV = 'LunarLander-v2'
 
 POLICY = 'MlpPolicy'
 
-FIRST_TRAIN_TIMESTEPS = 1000 # 25000 recommended
-SECOND_TRAIN_TIMESTEPS = 1000
+FIRST_TRAIN_TIMESTEPS = 10000 # 25000 recommended
+SECOND_TRAIN_TIMESTEPS = 25000
 
 metadata = {
     'BASE_ENV': BASE_ENV,
@@ -45,5 +45,6 @@ utils.save_metadata(metadata, path=dir_name)
 utils.save_weights(utils.saveable(init_weights), path=dir_name, name="init_weights.json")
 utils.save_weights(utils.saveable(pre_update_weights), path=dir_name, name="pre_update_weights.json")
 utils.save_weights(utils.saveable(post_update_weights), path=dir_name, name="post_update_weights.json")
+utils.save_weights(utils.saveable(updates), path=dir_name, name="updates.json")
 
 utils.heatmap_sep(updates, title="Updates", show=False, save=True, save_as_prefix="updates.png", path=dir_name+"plots/")
