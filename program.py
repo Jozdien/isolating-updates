@@ -1,31 +1,49 @@
 import gym
 from stable_baselines3 import PPO
+from stable_baselines3.common.logger import configure
 
 from wrapper import DualRewardWrapper
 import utils
 
-base_env = gym.make('LunarLander-v2')
-custom_env = DualRewardWrapper(base_env, flag=True)
+BASE_ENV = 'LunarLander-v2'
 
-model = PPO("MlpPolicy", base_env, verbose=1)
-model.learn(total_timesteps=1000) # 25000 recommended
+POLICY = 'MlpPolicy'
 
-model.set_env(custom_env)
+FIRST_TRAIN_TIMESTEPS = 1000 # 25000 recommended
+SECOND_TRAIN_TIMESTEPS = 1000
 
-weights = utils.true_copy(utils.get_weights(model))
-model.learn(total_timesteps=1000)
-new_weights = utils.true_copy(utils.get_weights(model))
-
-updates = utils.weight_diff(weights, new_weights)
+metadata = {
+    'BASE_ENV': BASE_ENV,
+    'POLICY': POLICY,
+    'FIRST_TRAIN_TIMESTEPS': FIRST_TRAIN_TIMESTEPS,
+    'SECOND_TRAIN_TIMESTEPS': SECOND_TRAIN_TIMESTEPS,
+}
 
 dir_name = utils.mkdir_timestamped()
-utils.heatmap_sep(updates, title="Original Weights", show=False, save=True, save_as_prefix="original_weights.png", path="plots/{}/".format(dir_name))
+log_path = dir_name + "log/"
 
-# obs = env.reset()
-# for i in range(500):
-#     action, _state = model.predict(obs, deterministic=True)
-#     obs, reward, done, info = custom_env.step(action)
-#     done = terminated or truncated
-#     custom_env.render()
-#     if done:
-#       obs = custom_env.reset()
+new_logger = configure(log_path, ['stdout', 'csv', 'json'])
+
+base_env = gym.make(BASE_ENV)
+custom_env = DualRewardWrapper(base_env, flag=True)
+
+model = PPO(POLICY, base_env, verbose=1)
+init_weights = utils.true_copy(utils.get_weights(model))
+
+model.set_logger(new_logger)
+model.learn(total_timesteps=FIRST_TRAIN_TIMESTEPS)
+
+model.set_env(custom_env)
+pre_update_weights = utils.true_copy(utils.get_weights(model))
+
+model.learn(total_timesteps=SECOND_TRAIN_TIMESTEPS)
+post_update_weights = utils.true_copy(utils.get_weights(model))
+
+updates = utils.weight_diff(pre_update_weights, post_update_weights)
+
+utils.save_metadata(metadata, path=dir_name)
+utils.save_weights(utils.saveable(init_weights), path=dir_name, name="init_weights.json")
+utils.save_weights(utils.saveable(pre_update_weights), path=dir_name, name="pre_update_weights.json")
+utils.save_weights(utils.saveable(post_update_weights), path=dir_name, name="post_update_weights.json")
+
+utils.heatmap_sep(updates, title="Updates", show=False, save=True, save_as_prefix="updates.png", path=dir_name+"plots/")

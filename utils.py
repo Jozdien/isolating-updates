@@ -3,9 +3,39 @@ import numpy as np
 import os
 import datetime
 import copy
+import json
 import matplotlib.pyplot as plt
 from matplotlib.gridspec import GridSpec
 
+
+def mkdir_timestamped(path="runs/"):
+    '''
+    Creates a directory with the current date and time.
+    '''
+    time = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S") + "/"
+    name = os.path.join(os.getcwd(), path, time)
+    os.mkdir(name)
+    return path + "/" + time
+
+def save_metadata(metadata, path="runs/"):
+    '''
+    Saves the metadata of a run to a json file.
+    '''
+    with open(path + "metadata.json", 'w') as f:
+        json.dump(metadata, f)
+
+def save_weights(weights, path="runs/", name="weights.json"):
+    '''
+    Saves the weights of a model to a json file.
+    '''
+    with open(path + name, 'w') as f:
+        json.dump(weights, f)
+
+def saveable(model):
+    '''
+    Returns a model that can be saved to a json file.
+    '''
+    return {key: value.tolist() for key, value in model.items()}
 
 def true_copy(obj):
     '''
@@ -48,21 +78,14 @@ def get_weights(model):
     '''
     return model.policy.state_dict()
 
-def mkdir_timestamped(path="plots/"):
-    '''
-    Creates a directory with the current date and time.
-    '''
-    time = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-    name = os.path.join(os.getcwd(), path, time)
-    os.mkdir(name)
-    return time
-
-def heatmap_sep(model, title="Plot", set_abs=True, show=True, save=False, save_as_prefix="plot", path="plots/"):
+def heatmap_sep(model, title="Plot", set_abs=True, show=True, save=False, save_as_prefix="plot", path="runs/"):
     '''
     Plots separate heatmaps of every weight tensor in a model.
     '''
     if save_as_prefix.endswith(".png"):
         save_as_prefix = save_as_prefix[:-4]
+    if not os.path.exists(path):
+        os.mkdir(path)
     for count, (name, weights) in enumerate(model.items()):
         if len(weights.shape) == 1:
             weights = weights.reshape(1, -1)
@@ -77,13 +100,14 @@ def heatmap_sep(model, title="Plot", set_abs=True, show=True, save=False, save_a
     if show:
         plt.show()
 
-def heatmap(model, title="Plot", set_abs=True, save=False, save_as="plot.png", path="plots/"):
+def heatmap(model, title="Plot", set_abs=True, save=False, save_as="plot.png", path="runs/"):
     '''
     Archaic function for plotting a heatmap of the weights of a model.
     '''
+    if not os.path.exists(path):
+        os.mkdir(path)
     fig = plt.figure(figsize=(12, 12))
     gs = GridSpec(len(model.keys())*3, 2)
-
     vcount = 0
     for count, (name, weights) in enumerate(model.items()):
         if len(weights.shape) == 1:
@@ -96,7 +120,6 @@ def heatmap(model, title="Plot", set_abs=True, save=False, save_as="plot.png", p
         if set_abs:  # SET WEIGHTS TO ABS FOR PLOTTING
             weights = np.absolute(weights)
         ax.imshow(weights, cmap='hot', interpolation='nearest')
-
     plt.suptitle(title)
     if save:
         plt.savefig(save_as, bbox_inches='tight')
