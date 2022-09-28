@@ -27,10 +27,14 @@ from Box2D.b2 import (
     fixtureDef,
 )
 
-class DualRewardWrapper(gym.Wrapper):
-    def __init__(self, env, flag=False):
+class RewardWrapper(gym.Wrapper):
+    '''
+    Wrapper for the LunarLander-v2 environment that allows for fuel consumption to penalized or not based on a boolean flag 'fuel'.
+    step() also returns a dict containing the reward corresponding to fuel consumption.
+    '''
+    def __init__(self, env, fuel=False):
         super().__init__(env)
-        self.flag = flag
+        self.fuel = fuel
 
     def create_particle(self, mass, x, y, ttl):
         p = self.world.CreateDynamicBody(
@@ -195,10 +199,13 @@ class DualRewardWrapper(gym.Wrapper):
             reward = shaping - self.prev_shaping
         self.prev_shaping = shaping
 
-        reward -= (
-            m_power * 0.30
-        )  # less fuel spent is better, about -30 for heuristic landing
-        reward -= s_power * 0.03
+        fuel_reward = 0
+        if self.fuel:
+            reward -= (
+                m_power * 0.30
+            )  # less fuel spent is better, about -30 for heuristic landing
+            reward -= s_power * 0.03
+            fuel_reward -= m_power * 0.30 + s_power * 0.03
 
         terminated = False
         if self.game_over or abs(state[0]) >= 1.0:
@@ -209,7 +216,4 @@ class DualRewardWrapper(gym.Wrapper):
             reward = +100
         self.renderer.render_step()
 
-        if self.flag:
-            reward = 0
-
-        return np.array(state, dtype=np.float32), reward, terminated, {}
+        return np.array(state, dtype=np.float32), reward, terminated, {'fuel_reward': fuel_reward}

@@ -37,6 +37,12 @@ def saveable(model):
     '''
     return {key: value.tolist() for key, value in model.items()}
 
+def to_dict(key, obj):
+    '''
+    Returns a dict of the key-obj pair.
+    '''
+    return {key: obj}
+
 def true_copy(obj):
     '''
     Returns a true copy of an object.
