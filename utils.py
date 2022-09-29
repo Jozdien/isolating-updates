@@ -37,6 +37,13 @@ def saveable(model):
     '''
     return {key: value.tolist() for key, value in model.items()}
 
+def save_to_json(obj, path="runs/", name="obj.json"):
+    '''
+    Saves an object to a json file.
+    '''
+    with open(path + name, 'w') as f:
+        json.dump(obj, f)
+
 def to_dict(key, obj):
     '''
     Returns a dict of the key-obj pair.

@@ -19,6 +19,21 @@ metadata = {
     'SECOND_TRAIN_TIMESTEPS': SECOND_TRAIN_TIMESTEPS,
 }
 
+rewards_dict = {
+    'pre_update': {
+        'total_reward': [],
+        'fuel_reward': [],
+    },
+    'post_update': {
+        'total_reward': [],
+        'fuel_reward': [],
+    },
+    'sub_update': {
+        'total_reward': [],
+        'fuel_reward': [],
+    }
+}
+
 dir_name = utils.mkdir_timestamped()
 log_path = dir_name + "log/"
 
@@ -39,9 +54,29 @@ model.set_env(fuel_env)
 pre_update_weights = utils.true_copy(utils.get_weights(model))
 model.save(dir_name + 'pre_update_weights_model')
 
+obs = fuel_env.reset()
+for i in range(1000):
+    action, _state = model.predict(obs, deterministic=True)
+    obs, reward, done, info = fuel_env.step(action)
+    rewards_dict['pre_update']['total_reward'].append(reward)
+    rewards_dict['pre_update']['fuel_reward'].append(info['fuel_reward'])
+    # fuel_env.render()
+    if done:
+      obs = fuel_env.reset()
+
 model.learn(total_timesteps=SECOND_TRAIN_TIMESTEPS)
 post_update_weights = utils.true_copy(utils.get_weights(model))
 model.save(dir_name + 'post_update_weights_model')
+
+obs = fuel_env.reset()
+for i in range(1000):
+    action, _state = model.predict(obs, deterministic=True)
+    obs, reward, done, info = fuel_env.step(action)
+    rewards_dict['post_update']['total_reward'].append(reward)
+    rewards_dict['post_update']['fuel_reward'].append(info['fuel_reward'])
+    # fuel_env.render()
+    if done:
+      obs = fuel_env.reset()
 
 updates = utils.weight_diff(post_update_weights, pre_update_weights)
 
@@ -62,7 +97,10 @@ obs = fuel_env.reset()
 for i in range(1000):
     action, _state = model.predict(obs, deterministic=True)
     obs, reward, done, info = fuel_env.step(action)
-    print(info)
+    rewards_dict['sub_update']['total_reward'].append(reward)
+    rewards_dict['sub_update']['fuel_reward'].append(info['fuel_reward'])
     # fuel_env.render()
     if done:
       obs = fuel_env.reset()
+
+utils.save_to_json(rewards_dict, path=dir_name, name="rewards.json")
