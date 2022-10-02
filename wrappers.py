@@ -33,8 +33,9 @@ class RewardWrapper(gym.Wrapper):
     step() also returns a dict containing the reward corresponding to fuel consumption.
     '''
     def __init__(self, env, fuel=False):
-        super().__init__(env)
+        super().__init__(env, new_step_api=True)
         self.fuel = fuel
+        self.new_step_api = True
 
     def create_particle(self, mass, x, y, ttl):
         p = self.world.CreateDynamicBody(
@@ -216,4 +217,4 @@ class RewardWrapper(gym.Wrapper):
             reward = +100
         self.renderer.render_step()
 
-        return np.array(state, dtype=np.float32), reward, terminated, {'fuel_reward': fuel_reward}
+        return np.array(state, dtype=np.float32), reward, terminated, False, {}

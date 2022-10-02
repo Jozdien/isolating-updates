@@ -8,6 +8,18 @@ import matplotlib.pyplot as plt
 from matplotlib.gridspec import GridSpec
 
 
+def test_model(env, model, rewards_dict, phase, render=False, num_episodes=1000):
+    obs = env.reset()
+    for i in range(num_episodes):
+        action, _state = model.predict(obs, deterministic=True)
+        obs, reward, done, info = env.step(action)
+        rewards_dict[phase]['total_reward'].append(reward)
+        rewards_dict[phase]['fuel_reward'].append(info['fuel_reward'])
+        if render:
+            env.render()
+        if done:
+            obs = env.reset()
+
 def mkdir_timestamped(path="runs/"):
     '''
     Creates a directory with the current date and time.
