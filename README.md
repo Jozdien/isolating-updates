@@ -1,4 +1,4 @@
-# Identifying High-level Structures Through Isolated Updates
+# Identifying High-level Structures in RL Agents Through Isolated Updates
 
 This repo contains code for training an RL agent in an environment to optimize a reward, and then training it for a few timesteps on a changed reward.  This is to test one of my theories of interpretability that if you can change one aspect of the training setup after training the model to a sufficient limit, whatever update there are to the weights will correspond to that change, and that this can be used to isolate a pure high-level structure of some property in the network.
 

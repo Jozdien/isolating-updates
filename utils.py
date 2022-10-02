@@ -9,6 +9,10 @@ from matplotlib.gridspec import GridSpec
 
 
 def test_model(env, model, rewards_dict, phase, render=False, num_episodes=1000):
+    '''
+    Runs a model on the given environment for num_episodes.
+    Stores in rewards_dict the total reward as well as the fuel reward for each episode, under the key phase.
+    '''
     obs = env.reset()
     for i in range(num_episodes):
         action, _state = model.predict(obs, deterministic=True)
