@@ -10,8 +10,8 @@ BASE_ENV = 'LunarLander-v2'
 
 POLICY = 'MlpPolicy'
 
-FIRST_TRAIN_TIMESTEPS = 100000 # 25000 recommended
-SECOND_TRAIN_TIMESTEPS = 1000
+FIRST_TRAIN_TIMESTEPS = 100000
+SECOND_TRAIN_TIMESTEPS = 10000
 
 metadata = {
     'BASE_ENV': BASE_ENV,
@@ -34,7 +34,7 @@ new_logger = configure(log_path, ['stdout', 'json'])  # custom logger to save as
 
 base_env = gym.make(BASE_ENV, continuous=True)  # using the continuous LunarLander environment to broaden fuel consumption action space
 no_fuel_env = TimeLimit(StepAPICompatibility(RewardWrapper(base_env, fuel=False)))  # environment with no fuel reward
-fuel_env = RewardWrapper(base_env, fuel=True)  # environment with fuel reward
+fuel_env = TimeLimit(StepAPICompatibility(RewardWrapper(base_env, fuel=True)))  # environment with fuel reward
 
 model = PPO(POLICY, base_env, verbose=1)
 init_weights = utils.true_copy(utils.get_weights(model))
