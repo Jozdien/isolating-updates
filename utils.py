@@ -125,7 +125,7 @@ def heatmap_sep(model, title="Plot", set_abs=True, show=True, save=False, save_a
             weights = np.absolute(weights)
         ax.imshow(weights, cmap='hot', interpolation='nearest')
         if save:
-            plt.savefig(path + save_as_prefix + name + ".png", bbox_inches='tight')
+            plt.savefig(path + save_as_prefix + "_" + name + ".png", bbox_inches='tight')
     if show:
         plt.show()
 
