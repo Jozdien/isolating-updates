@@ -186,6 +186,13 @@ def fuel_zeros_count(rewards):
     pre, post, sub = phase_fuel_rewards(rewards)
     return pre.count(0), post.count(0), sub.count(0)
 
+def fuel_zeros_percent(rewards):
+    '''
+    Returns percentage of 0 fuel rewards in each phase.
+    '''
+    pre, post, sub = phase_fuel_rewards(rewards)
+    return pre.count(0) / len(pre), post.count(0) / len(post), sub.count(0) / len(sub)
+
 def remove_zeros(lst):
     '''
     Returns a list with all 0s removed.
