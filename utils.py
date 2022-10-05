@@ -4,6 +4,7 @@ import os
 import datetime
 import copy
 import json
+import statistics
 import matplotlib.pyplot as plt
 from matplotlib.gridspec import GridSpec
 
@@ -129,26 +130,85 @@ def heatmap_sep(model, title="Plot", set_abs=True, show=True, save=False, save_a
     if show:
         plt.show()
 
-def heatmap(model, title="Plot", set_abs=True, save=False, save_as="plot.png", path="runs/"):
+def load_rewards(path):
     '''
-    Archaic function for plotting a heatmap of the weights of a model.
+    Returns a dictionary containing the rewards from a single run.
+    Keys: 'pre_update', 'post_update', and 'sub_update'.
+    Each subdict contains net reward from each step, and fuel reward from each step.
     '''
-    if not os.path.exists(path):
-        os.mkdir(path)
-    fig = plt.figure(figsize=(12, 12))
-    gs = GridSpec(len(model.keys())*3, 2)
-    vcount = 0
-    for count, (name, weights) in enumerate(model.items()):
-        if len(weights.shape) == 1:
-            weights = weights.reshape(1, -1)
-            ax = plt.subplot(gs[vcount, 1])
-            vcount += 6
-        else:
-            ax = plt.subplot(gs[vcount:vcount+4, 0])
-        ax.set_title(name)
-        if set_abs:  # SET WEIGHTS TO ABS FOR PLOTTING
-            weights = np.absolute(weights)
-        ax.imshow(weights, cmap='hot', interpolation='nearest')
-    plt.suptitle(title)
-    if save:
-        plt.savefig(save_as, bbox_inches='tight')
+    if path[-5:] != '.json':
+        path += '/rewards.json'
+    return json.load(open(path))
+
+def load_weights(weights, path):
+    '''
+    Returns a dictionary containing the weights from a single run.
+    '''
+    return json.load(open(path + '/' + weights))
+
+def phase_rewards(rewards):
+    '''
+    Returns three dicts for three phases, containing net rewards from each step and fuel rewards from each step.
+    '''
+    return rewards['pre_update'], rewards['post_update'], rewards['sub_update']
+
+def phase_fuel_rewards(rewards):
+    '''
+    Returns three lists for three phases, containing fuel rewards from each step.
+    '''
+    return rewards['pre_update']['fuel_reward'], rewards['post_update']['fuel_reward'], rewards['sub_update']['fuel_reward']
+
+def fuel_means(rewards):
+    '''
+    Returns mean fuel reward for each phase.
+    '''
+    pre, post, sub = phase_fuel_rewards(rewards)
+    return statistics.mean(pre), statistics.mean(post), statistics.mean(sub)
+
+def fuel_stds(rewards):
+    '''
+    Returns standard deviation of fuel reward for each phase.
+    '''
+    pre, post, sub = phase_fuel_rewards(rewards)
+    return statistics.stdev(pre), statistics.stdev(post), statistics.stdev(sub)
+
+def fuel_variance(rewards):
+    '''
+    Returns variance of fuel reward for each phase.
+    '''
+    pre, post, sub = phase_fuel_rewards(rewards)
+    return statistics.variance(pre), statistics.variance(post), statistics.variance(sub)
+
+def fuel_zeros_count(rewards):
+    '''
+    Returns number of 0 fuel rewards in each phase.
+    '''
+    pre, post, sub = phase_fuel_rewards(rewards)
+    return pre.count(0), post.count(0), sub.count(0)
+
+def remove_zeros(lst):
+    '''
+    Returns a list with all 0s removed.
+    '''
+    return [x for x in lst if x != 0]
+
+def fuel_means_no_zeros(rewards):
+    '''
+    Returns mean fuel reward for each phase, with 0s removed.
+    '''
+    pre, post, sub = phase_fuel_rewards(rewards)
+    return statistics.mean(remove_zeros(pre)), statistics.mean(remove_zeros(post)), statistics.mean(remove_zeros(sub))
+
+def fuel_stds_no_zeros(rewards):
+    '''
+    Returns standard deviation of fuel reward for each phase, with 0s removed.
+    '''
+    pre, post, sub = phase_fuel_rewards(rewards)
+    return statistics.stdev(remove_zeros(pre)), statistics.stdev(remove_zeros(post)), statistics.stdev(remove_zeros(sub))
+
+def fuel_variance_no_zeros(rewards):
+    '''
+    Returns variance of fuel reward for each phase, with 0s removed.
+    '''
+    pre, post, sub = phase_fuel_rewards(rewards)
+    return statistics.variance(remove_zeros(pre)), statistics.variance(remove_zeros(post)), statistics.variance(remove_zeros(sub))
