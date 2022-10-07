@@ -9,11 +9,10 @@ path = args.path
 
 rewards = utils.load_rewards(path)
 
-reward_zeros_percent = utils.reward_zeros_percent(rewards)
 reward_means = utils.reward_means(rewards)
 reward_stds = utils.reward_stds(rewards)
 reward_variance = utils.reward_variance(rewards)
-reward_variance_no_zeros = utils.reward_variance_no_zeros(rewards)
+
 fuel_zeros_percent = utils.fuel_zeros_percent(rewards)
 fuel_means = utils.fuel_means(rewards)
 fuel_stds = utils.fuel_stds(rewards)

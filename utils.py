@@ -206,20 +206,6 @@ def fuel_variance(rewards):
     pre, post, sub = phase_fuel_rewards(rewards)
     return statistics.variance(pre), statistics.variance(post), statistics.variance(sub)
 
-def reward_zeros_count(rewards):
-    '''
-    Returns the number of zero rewards for each phase.
-    '''
-    pre, post, sub = phase_total_rewards(rewards)
-    return pre.count(0), post.count(0), sub.count(0)
-
-def reward_zeros_percent(rewards):
-    '''
-    Returns the percentage of zero rewards for each phase.
-    '''
-    pre, post, sub = phase_total_rewards(rewards)
-    return pre.count(0) / len(pre), post.count(0) / len(post), sub.count(0) / len(sub)
-
 def fuel_zeros_count(rewards):
     '''
     Returns number of 0 fuel rewards in each phase.
@@ -240,13 +226,6 @@ def remove_zeros(lst):
     '''
     return [x for x in lst if x != 0]
 
-def reward_means_no_zeros(rewards):
-    '''
-    Returns mean reward for each phase, with 0s removed.
-    '''
-    pre, post, sub = phase_total_rewards(rewards)
-    return statistics.mean(remove_zeros(pre)), statistics.mean(remove_zeros(post)), statistics.mean(remove_zeros(sub))
-
 def fuel_means_no_zeros(rewards):
     '''
     Returns mean fuel reward for each phase, with 0s removed.
@@ -254,26 +233,12 @@ def fuel_means_no_zeros(rewards):
     pre, post, sub = phase_fuel_rewards(rewards)
     return statistics.mean(remove_zeros(pre)), statistics.mean(remove_zeros(post)), statistics.mean(remove_zeros(sub))
 
-def reward_stds_no_zeros(rewards):
-    '''
-    Returns standard deviation of reward for each phase, with 0s removed.
-    '''
-    pre, post, sub = phase_total_rewards(rewards)
-    return statistics.stdev(remove_zeros(pre)), statistics.stdev(remove_zeros(post)), statistics.stdev(remove_zeros(sub))
-
 def fuel_stds_no_zeros(rewards):
     '''
     Returns standard deviation of fuel reward for each phase, with 0s removed.
     '''
     pre, post, sub = phase_fuel_rewards(rewards)
     return statistics.stdev(remove_zeros(pre)), statistics.stdev(remove_zeros(post)), statistics.stdev(remove_zeros(sub))
-
-def reward_variance_no_zeros(rewards):
-    '''
-    Returns variance of reward for each phase, with 0s removed.
-    '''
-    pre, post, sub = phase_total_rewards(rewards)
-    return statistics.variance(remove_zeros(pre)), statistics.variance(remove_zeros(post)), statistics.variance(remove_zeros(sub))
 
 def fuel_variance_no_zeros(rewards):
     '''
