@@ -36,7 +36,7 @@ base_env = gym.make(BASE_ENV, continuous=True)  # using the continuous LunarLand
 no_fuel_env = TimeLimit(StepAPICompatibility(RewardWrapper(base_env, fuel=False)))  # environment with no fuel reward
 fuel_env = TimeLimit(StepAPICompatibility(RewardWrapper(base_env, fuel=True)))  # environment with fuel reward
 
-model = PPO(POLICY, base_env, verbose=1)
+model = PPO(POLICY, no_fuel_env, verbose=1)
 init_weights = utils.true_copy(utils.get_weights(model))
 model.save(dir_name + 'init_weights_model')
 
