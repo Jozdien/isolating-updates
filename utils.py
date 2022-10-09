@@ -246,3 +246,29 @@ def fuel_variance_no_zeros(rewards):
     '''
     pre, post, sub = phase_fuel_rewards(rewards)
     return statistics.variance(remove_zeros(pre)), statistics.variance(remove_zeros(post)), statistics.variance(remove_zeros(sub))
+
+def print_stats(rewards):
+    '''
+    Prints a select number of stats about the net rewards and fuel rewards from each phase
+    '''
+    rw_means = reward_means(rewards)
+    rw_stds = reward_stds(rewards)
+    rw_vars = reward_variance(rewards)
+
+    fl_zeros_percent = fuel_zeros_percent(rewards)
+    fl_means = fuel_means(rewards)
+    fl_means_no_zeros = fuel_means_no_zeros(rewards)
+    fl_stds = fuel_stds(rewards)
+    fl_vars = fuel_variance(rewards)
+    fl_vars_no_zeros = fuel_variance_no_zeros(rewards)
+
+    print('Reward means: {}'.format(rw_means))
+    print('Reward standard deviations: {}'.format(rw_stds))
+    print('Reward variances: {}'.format(rw_vars))
+
+    print('Fuel zeros percent: {}'.format(fl_zeros_percent))
+    print('Fuel means: {}'.format(fl_means))
+    print('Fuel means (no zeros): {}'.format(fl_means_no_zeros))
+    print('Fuel standard deviations: {}'.format(fl_stds))
+    print('Fuel variances: {}'.format(fl_vars))
+    print('Fuel variances (no zeros): {}'.format(fl_vars_no_zeros))

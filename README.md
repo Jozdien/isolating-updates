@@ -8,7 +8,9 @@ Of course, there is further work involved in trying to isolate this high-level s
 
 ## To-Do
 
+- Perturb the update signal and see what happens.
 - Add analysis functions to graph rewards and any stats of interest.
 - Try modifying second reward to only be fuel and see what changes, if anything.
 - Consider what would verify specific hypotheses about observations.
     - For example, if this doesn't seem to work at all, it could be that the policy is changing as the reward does, in ways that aren't clearly detectable with high-level structural changes (at least, not at the same high-level "objective" would be, which is the hope). Perturbations to the updates (find way to add random noise of variable intensity) for verification?
+- Try with different lengths of the second phase of training. Maybe shorter updates are more likely to only update the objective, maybe longer ones average out noise that isn't related to the objective - either way, we'll have to see.
