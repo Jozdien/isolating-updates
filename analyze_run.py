@@ -9,4 +9,6 @@ path = args.path
 
 rewards = utils.load_rewards(path)
 
-utils.print_stats(rewards)
+# utils.print_stats(rewards)
+# utils.fuel_plot_exact(rewards)
+utils.fuel_plot_curve(rewards)

@@ -6,6 +6,7 @@ import copy
 import json
 import statistics
 import matplotlib.pyplot as plt
+from scipy.interpolate import make_interp_spline
 from matplotlib.gridspec import GridSpec
 
 
@@ -272,3 +273,36 @@ def print_stats(rewards):
     print('Fuel standard deviations: {}'.format(fl_stds))
     print('Fuel variances: {}'.format(fl_vars))
     print('Fuel variances (no zeros): {}'.format(fl_vars_no_zeros))
+
+def fuel_plot_exact(rewards):
+    '''
+    Plots the fuel reward for each phase.
+    '''
+    pre, post, sub = phase_fuel_rewards(rewards)
+    plt.plot(pre, label='pre')
+    plt.plot(post, label='post')
+    plt.plot(sub, label='sub')
+    plt.legend()
+    plt.show()
+
+def fuel_plot_curve(rewards):
+    '''
+    Plots the fuel reward for each phase, with a fitted line.
+    '''
+    pre, post, sub = phase_fuel_rewards(rewards)
+    y = pre
+    x = [i for i in range(len(y))]
+    x_y_spline = make_interp_spline(x, y)
+    x_new = np.linspace(x[0], x[-1], 40)
+    y_new = x_y_spline(x_new)
+    plt.plot(x_new, y_new, label='pre')
+    y = post
+    x_y_spline = make_interp_spline(x, y)
+    y_new = x_y_spline(x_new)
+    plt.plot(x_new, y_new, label='post')
+    y = sub
+    x_y_spline = make_interp_spline(x, y)
+    y_new = x_y_spline(x_new)
+    plt.plot(x_new, y_new, label='sub')
+    plt.legend()
+    plt.show()
