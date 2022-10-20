@@ -21,3 +21,10 @@ path = args.path
 
 rewards = utils.load_from_json(path + "/rewards.json")
 train_stats = utils.load_mult_json(path + "/log/progress.json")
+
+utils.print_stats(rewards)
+utils.rw_plot_exact(rewards, fuel=False)
+utils.rw_plot_exact(rewards, fuel=True)
+utils.rw_plot_fit(rewards, fuel=False)
+utils.rw_plot_fit(rewards, fuel=True)
+utils.train_plot(train_stats, var_name="rollout/ep_rew_mean")
