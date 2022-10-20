@@ -131,15 +131,26 @@ def heatmap_sep(model, title="Plot", set_abs=True, show=True, save=False, save_a
     if show:
         plt.show()
 
-def load_rewards(path):
+
+def load_from_json(path):
     '''
-    Returns a dictionary containing the rewards from a single run.
-    Keys: 'pre_update', 'post_update', and 'sub_update'.
-    Each subdict contains net reward from each step, and fuel reward from each step.
+    Returns an object from a json file.
     '''
-    if path[-5:] != '.json':
-        path += '/rewards.json'
     return json.load(open(path))
+
+def load_mult_json(path):
+    '''
+    Loads from a file containing multiple JSON objects.
+    '''
+    with open(path, encoding="utf-8") as f:
+        txt = f.read().lstrip()
+    decoder = json.JSONDecoder()
+    result = []
+    while txt:
+        data, pos = decoder.raw_decode(txt)
+        result.append(data)
+        txt = txt[pos:].lstrip()
+    return result
 
 def load_weights(weights, path):
     '''
@@ -248,6 +259,18 @@ def fuel_variance_no_zeros(rewards):
     pre, post, sub = phase_fuel_rewards(rewards)
     return statistics.variance(remove_zeros(pre)), statistics.variance(remove_zeros(post)), statistics.variance(remove_zeros(sub))
 
+def remove_outliers(data, m=100):
+    '''
+    Removes outliers from a list.
+    Increase m to include more outliers.
+    '''
+    if not isinstance(data, np.ndarray):
+        data = np.array(data)
+    d = np.abs(data - np.median(data))
+    mdev = np.median(d)
+    s = d/mdev if mdev else 0.
+    return data[s<m]
+
 def print_stats(rewards):
     '''
     Prints a select number of stats about the net rewards and fuel rewards from each phase
@@ -274,35 +297,85 @@ def print_stats(rewards):
     print('Fuel variances: {}'.format(fl_vars))
     print('Fuel variances (no zeros): {}'.format(fl_vars_no_zeros))
 
-def fuel_plot_exact(rewards):
+def rw_plot_exact(rewards, fuel=False):
     '''
-    Plots the fuel reward for each phase.
+    Plots the total or fuel reward for each phase.
     '''
-    pre, post, sub = phase_fuel_rewards(rewards)
+    if fuel:
+        pre, post, sub = phase_fuel_rewards(rewards)
+    else:
+        pre, post, sub = phase_total_rewards(rewards)
     plt.plot(pre, label='pre')
     plt.plot(post, label='post')
     plt.plot(sub, label='sub')
+    plt.xlabel('Timesteps')
+    if fuel:
+        plt.ylabel('Fuel reward')
+        plt.title('Fuel reward on testing after each phase')
+    else:
+        plt.ylabel('Total reward')
+        plt.title('Total reward on testing after each phase')
     plt.legend()
     plt.show()
 
-def fuel_plot_curve(rewards):
+def rw_plot_fit(rewards, fuel=False, outliers=True):
     '''
-    Plots the fuel reward for each phase, with a fitted line.
+    Plots the total or fuel reward for each phase, with a fitted curve line.
     '''
-    pre, post, sub = phase_fuel_rewards(rewards)
+    if fuel:
+        pre, post, sub = phase_fuel_rewards(rewards)
+    else:
+        pre, post, sub = phase_total_rewards(rewards)
+        if not outliers:
+            pre, post, sub = remove_outliers(pre), remove_outliers(post), remove_outliers(sub)
     y = pre
     x = [i for i in range(len(y))]
     x_y_spline = make_interp_spline(x, y)
-    x_new = np.linspace(x[0], x[-1], 40)
+    if fuel:
+        x_new = np.linspace(x[0], x[-1], 40)
+    else:
+        x_new = np.linspace(x[0], x[-1], 500)
     y_new = x_y_spline(x_new)
     plt.plot(x_new, y_new, label='pre')
     y = post
+    x = [i for i in range(len(y))]
     x_y_spline = make_interp_spline(x, y)
+    if fuel:
+        x_new = np.linspace(x[0], x[-1], 40)
+    else:
+        x_new = np.linspace(x[0], x[-1], 100)
     y_new = x_y_spline(x_new)
     plt.plot(x_new, y_new, label='post')
     y = sub
+    x = [i for i in range(len(y))]
     x_y_spline = make_interp_spline(x, y)
+    if fuel:
+        x_new = np.linspace(x[0], x[-1], 40)
+    else:
+        x_new = np.linspace(x[0], x[-1], 100)
     y_new = x_y_spline(x_new)
     plt.plot(x_new, y_new, label='sub')
+    plt.xlabel('Timesteps')
+    if fuel:
+        plt.ylabel('Fuel reward')
+        plt.title('Fitted curve of fuel reward on testing after each phase')
+    else:
+        plt.ylabel('Total reward')
+        plt.title('Fitted curve of total reward on testing after each phase')
+    plt.legend()
+    plt.show()
+
+def train_plot(stats, var_name='rollout/ep_rew_mean'):
+    var = [episode[var_name] for episode in stats]
+    tsteps = [episode['time/total_timesteps'] for episode in stats]
+    crossover = [i for i, n in enumerate(tsteps) if n == 2048][1]
+    tsteps[crossover:] = [n + tsteps[crossover - 1] for n in tsteps[crossover:]]
+    plt.plot(tsteps[:crossover], var[:crossover], label='First phase')
+    plt.plot(tsteps[crossover:], var[crossover:], 'b-', label='Second phase')
+    plt.plot([tsteps[crossover - 1], tsteps[crossover]], [var[crossover - 1], var[crossover]], 'b-')
+    plt.axvline(x=tsteps[crossover-1], color='r', linestyle='-', linewidth=0.5)
+    plt.xlabel('Timesteps')
+    plt.ylabel('Reward')
+    plt.title('Reward curve across both phases')
     plt.legend()
     plt.show()

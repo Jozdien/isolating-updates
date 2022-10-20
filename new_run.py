@@ -10,8 +10,8 @@ BASE_ENV = 'LunarLander-v2'
 
 POLICY = 'MlpPolicy'
 
-FIRST_TRAIN_TIMESTEPS = 250000
-SECOND_TRAIN_TIMESTEPS = 20000
+FIRST_TRAIN_TIMESTEPS = 5000
+SECOND_TRAIN_TIMESTEPS = 5000
 
 metadata = {
     'BASE_ENV': BASE_ENV,
@@ -30,7 +30,7 @@ rewards_dict = {
 dir_name = utils.mkdir_timestamped()  # create a new directory for this run
 log_path = dir_name + "log/"  # directory for the files saved by logger
 
-new_logger = configure(log_path, ['stdout', 'json'])  # custom logger to save as viewable JSON
+new_logger = configure(log_path, ['stdout', 'json', 'csv'])  # custom logger to save as viewable JSON
 
 base_env = gym.make(BASE_ENV, continuous=True)  # using the continuous LunarLander environment to broaden fuel consumption action space
 no_fuel_env = TimeLimit(StepAPICompatibility(RewardWrapper(base_env, fuel=False)))  # environment with no fuel reward
@@ -47,13 +47,13 @@ model.set_env(fuel_env)
 pre_update_weights = utils.true_copy(utils.get_weights(model))
 model.save(dir_name + 'pre_update_weights_model')
 
-utils.test_model(fuel_env, model, rewards_dict, 'pre_update', render=False, num_episodes=1000)
+utils.test_model(fuel_env, model, rewards_dict, 'pre_update', render=False, num_episodes=5000)
 
 model.learn(total_timesteps=SECOND_TRAIN_TIMESTEPS)
 post_update_weights = utils.true_copy(utils.get_weights(model))
 model.save(dir_name + 'post_update_weights_model')
 
-utils.test_model(fuel_env, model, rewards_dict, 'post_update', render=False, num_episodes=1000)
+utils.test_model(fuel_env, model, rewards_dict, 'post_update', render=False, num_episodes=5000)
 
 updates = utils.weight_diff(post_update_weights, pre_update_weights)
 
@@ -61,7 +61,7 @@ sub_update_weights = utils.weight_diff(pre_update_weights, updates)
 model.set_parameters(utils.to_dict('policy', sub_update_weights), exact_match=False)
 model.save(dir_name + 'sub_update_weights_model')
 
-utils.test_model(fuel_env, model, rewards_dict, 'sub_update', render=False, num_episodes=1000)
+utils.test_model(fuel_env, model, rewards_dict, 'sub_update', render=False, num_episodes=5000)
 
 utils.save_to_json(rewards_dict, path=dir_name, name="rewards.json")
 
