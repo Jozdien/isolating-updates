@@ -1,5 +1,4 @@
 import argparse
-
 import utils
 
 '''
@@ -7,6 +6,7 @@ Functions to load data:
     rewards = utils.load_from_json(path + "/rewards.json")
     train_stats = utils.load_mult_json(path + "/log/progress.json")
     weights = utils.load_weights(weights_name, path)
+    metadata = utils.load_from_json(path + "/metadata.json")
 Analysis functions:
     utils.print_stats(rewards)
     utils.rw_plot_exact(rewards, fuel) - fuel bool, determines whether net reward or fuel reward, default False
@@ -21,10 +21,7 @@ path = args.path
 
 rewards = utils.load_from_json(path + "/rewards.json")
 train_stats = utils.load_mult_json(path + "/log/progress.json")
+metadata = utils.load_from_json(path + "/metadata.json")
 
-utils.print_stats(rewards)
-utils.rw_plot_exact(rewards, fuel=False)
-utils.rw_plot_exact(rewards, fuel=True)
-utils.rw_plot_fit(rewards, fuel=False)
-utils.rw_plot_fit(rewards, fuel=True)
-utils.train_plot(train_stats, var_name="rollout/ep_rew_mean")
+# utils.print_stats(rewards)
+utils.analysis_plots(name=path[path.rfind('/')+1:], rewards=rewards, train_stats=train_stats, metadata=metadata, save=True, show=False)

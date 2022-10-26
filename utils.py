@@ -273,7 +273,7 @@ def remove_outliers(data, m=100):
 
 def print_stats(rewards):
     '''
-    Prints a select number of stats about the net rewards and fuel rewards from each phase
+    Prints a select number of stats about the net rewards and fuel rewards from each phase.
     '''
     rw_means = reward_means(rewards)
     rw_stds = reward_stds(rewards)
@@ -297,7 +297,23 @@ def print_stats(rewards):
     print('Fuel variances: {}'.format(fl_vars))
     print('Fuel variances (no zeros): {}'.format(fl_vars_no_zeros))
 
-def rw_plot_exact(rewards, fuel=False):
+def stats_dict(rewards):
+    '''
+    Returns the stats from the above function in dict form.
+    '''
+    return {
+        'Reward means': reward_means(rewards), 
+        'Reward standard deviations': reward_stds(rewards),
+        'Reward variances': reward_variance(rewards),
+        'Fuel zeros percent': fuel_zeros_percent(rewards),
+        'Fuel means': fuel_means(rewards),
+        'Fuel means (no zeros)': fuel_means_no_zeros(rewards),
+        'Fuel standard deviations': fuel_stds(rewards),
+        'Fuel variances': fuel_variance(rewards),
+        'Fuel variances (no zeros)': fuel_variance_no_zeros(rewards)
+    }
+
+def rw_plot_exact(rewards, fuel=False, show=True):
     '''
     Plots the total or fuel reward for each phase.
     '''
@@ -316,9 +332,10 @@ def rw_plot_exact(rewards, fuel=False):
         plt.ylabel('Total reward')
         plt.title('Total reward on testing after each phase')
     plt.legend()
-    plt.show()
+    if show:
+        plt.show()
 
-def rw_plot_fit(rewards, fuel=False, outliers=True):
+def rw_plot_fit(rewards, fuel=False, outliers=True, show=True):
     '''
     Plots the total or fuel reward for each phase, with a fitted curve line.
     '''
@@ -361,13 +378,17 @@ def rw_plot_fit(rewards, fuel=False, outliers=True):
         plt.title('Fitted curve of fuel reward on testing after each phase')
     else:
         plt.ylabel('Total reward')
-        plt.title('Fitted curve of total reward on testing after each phase')
+        if not outliers:
+            plt.title('Fitted curve of total reward on testing after each phase (no outliers)')
+        else:
+            plt.title('Fitted curve of total reward on testing after each phase')
     plt.legend()
-    plt.show()
+    if show:
+        plt.show()
 
-def train_plot(stats, var_name='rollout/ep_rew_mean'):
-    var = [episode[var_name] for episode in stats]
-    tsteps = [episode['time/total_timesteps'] for episode in stats]
+def train_plot(train_stats, var_name='rollout/ep_rew_mean', show=True):
+    var = [episode[var_name] for episode in train_stats]
+    tsteps = [episode['time/total_timesteps'] for episode in train_stats]
     crossover = [i for i, n in enumerate(tsteps) if n == 2048][1]
     tsteps[crossover:] = [n + tsteps[crossover - 1] for n in tsteps[crossover:]]
     plt.plot(tsteps[:crossover], var[:crossover], label='First phase')
@@ -378,4 +399,42 @@ def train_plot(stats, var_name='rollout/ep_rew_mean'):
     plt.ylabel('Reward')
     plt.title('Reward curve across both phases')
     plt.legend()
-    plt.show()
+    if show:
+        plt.show()
+
+def analysis_plots(name, rewards, train_stats, metadata, show=True, save=False, path="analysis/"):
+    '''
+    Composite analysis plots.
+    '''
+    fig, ax = plt.subplots(6, 1, figsize=(25, 60))  # Just to set the figure size
+    plt.subplots_adjust(top=0.88, bottom=0.05)
+
+    plt_title = 'Run: {}'.format(name)
+    plt.text(0, 7.6, plt_title, fontsize=30, transform=plt.gca().transAxes)
+    ts_info = "First training: {} timesteps\nSecond training: {} timesteps".format(metadata['FIRST_TRAIN_TIMESTEPS'], metadata['SECOND_TRAIN_TIMESTEPS'])
+    plt.text(0.75, 7.51, ts_info, fontsize=20, transform=plt.gca().transAxes, bbox=dict(facecolor='none', edgecolor='black', linewidth=3, pad=40.0))
+    stats = stats_dict(rewards)
+    stats_str = ""
+    for (k, v) in stats.items():
+        stats_str += k + ": " + str(v)[1:-1] + "\n"
+    plt.text(0, 7.15, stats_str, fontsize=16, transform=plt.gca().transAxes)
+
+    plt.subplot(6, 1, 1)
+    rw_plot_fit(rewards, show=False)
+    plt.subplot(6, 1, 2)
+    rw_plot_fit(rewards, outliers=False, show=False)
+    plt.subplot(6, 1, 3)
+    rw_plot_exact(rewards, show=False)
+    plt.subplot(6, 1, 4)
+    rw_plot_fit(rewards, fuel=True, show=False)
+    plt.subplot(6, 1, 5)
+    rw_plot_exact(rewards, fuel=True, show=False)
+    plt.subplot(6, 1, 6)
+    train_plot(train_stats, show=False)
+
+    if save:
+        if not os.path.exists(path):
+            os.mkdir(path)
+        plt.savefig(path + name + '_analysis.png')
+    if show:
+        plt.show()
