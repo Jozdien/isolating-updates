@@ -397,7 +397,7 @@ def train_plot(train_stats, var_name='rollout/ep_rew_mean', show=True):
     plt.axvline(x=tsteps[crossover-1], color='r', linestyle='-', linewidth=0.5)
     plt.xlabel('Timesteps')
     plt.ylabel('Reward')
-    plt.title('Reward curve across both phases')
+    plt.title('Training reward curve across both phases')
     plt.legend()
     if show:
         plt.show()
