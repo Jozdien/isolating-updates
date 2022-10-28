@@ -3,6 +3,7 @@ Code to visualize the composite plots from multiple runs with linked pan and zoo
 '''
 
 import os
+import math
 import argparse
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
@@ -27,17 +28,19 @@ elif runs[0] == 'all':
 
 imgs = [mpimg.imread(run) for run in runs]
 num_imgs = len(imgs)
-rows = int(num_imgs / 4) if num_imgs >= 4 else 1
-cols = 4 if num_imgs > 4 else num_imgs
+ipr = 2  # Images per row
+rows = math.ceil(num_imgs / ipr) if num_imgs >= ipr else 1
+cols = ipr if num_imgs > ipr else num_imgs
 
-fig, axes = plt.subplots(rows, cols, sharex=True, sharey=True)
+fig, axes = plt.subplots(rows, cols, figsize=[25, 60], sharex=True, sharey=True)
+plt.subplots_adjust(top=0.98, bottom=0.02, left=0.02, right=0.98, hspace=-0.05, wspace=-0.25)
+fig.tight_layout()
 
 for (i, img) in enumerate(imgs):
     if rows == 1:
-        axes[i].imshow(img)
-        axes[i].axis('off')
+        axes[i].imshow(img, aspect='auto')
     else:
-        axes[int(i / 4)][i % 4].imshow(img)
-        axes[int(i / 4)][i % 4].axis('off')
+        axes[int(i / ipr)][i % ipr].imshow(img, aspect='auto')
+[ax.set_axis_off() for ax in axes.ravel()]
 
 plt.show()
