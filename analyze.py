@@ -29,20 +29,21 @@ runs = args.runs
 if multiple:
     if runs == None:
         runs = [
-            'analysis/2022-10-20_19-11-51_analysis.png', 
-            'analysis/2022-10-20_19-34-20_analysis.png',
-            'analysis/2022-10-20_20-35-14_analysis.png',
-            'analysis/2022-10-20_21-09-58_analysis.png',
-            'analysis/2022-10-21_00-40-54_analysis.png',
-            'analysis/2022-10-21_01-17-08_analysis.png',
-            'analysis/2022-10-21_01-26-50_analysis.png',
-            'analysis/2022-10-21_01-37-13_analysis.png',
+            'runs/2022-10-20_19-11-51',
+            'runs/2022-10-20_19-34-20',
+            'runs/2022-10-20_20-35-14',
+            'runs/2022-10-20_21-09-58',
+            'runs/2022-10-21_00-40-54',
+            'runs/2022-10-21_01-17-08',
+            'runs/2022-10-21_01-26-50',
+            'runs/2022-10-21_01-37-13',
         ]
     elif runs[0] == 'all':
-        runs = ["analysis/" + run for run in os.listdir('analysis')]
+        runs = ["runs/" + run for run in os.listdir('runs')]
+    analyses = ['analysis/' + run.split('/')[1] + '_analysis.png' for run in runs]
 
-    utils.compare_stats(runs)
-    # utils.compare_plots(runs)
+    utils.compare_stats(runs, exclude=['Reward standard deviations', 'Fuel standard deviations', ])
+    # utils.compare_plots(analyses)
 else:
     if runs == None:
         runs = ['runs/' + os.listdir('runs')[0]]

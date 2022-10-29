@@ -441,6 +441,28 @@ def analysis_plots(name, rewards, train_stats, metadata, show=True, save=False, 
     if show:
         plt.show()
 
+def compare_stats(runs, exclude=[]):
+    '''
+    Creates a comparison plot of stats from multiple runs.
+    '''
+    stats = []
+    for run in runs:
+        stats.append(stats_dict(load_from_json(run + '/rewards.json')))
+    for key in stats[0].keys():
+        if key in exclude:
+            continue
+        fig = plt.figure()
+        plt.title(key)
+        x_axis = ['pre', 'post', 'sub']
+        vals = []
+        for (i, stat) in enumerate(stats):
+            plt.plot(x_axis, stat[key], linewidth=0.5, label=runs[i])
+            vals.append(list(stat[key]))
+        avg = np.mean(vals, axis=0)
+        plt.plot(avg, linestyle='--', linewidth=1.5, color='black', label='Mean')
+        plt.legend()
+    plt.show()
+
 def compare_plots(runs):
     '''
     Puts all the analysis plots of the runs in a single plot, with shared panning and zooming for easier analysis.
