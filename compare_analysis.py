@@ -1,5 +1,5 @@
 '''
-Code to visualize the composite plots from multiple runs with linked pan and zoom.
+Code to visualize and compare composite plots from multiple runs with linked pan and zoom.
 '''
 
 import os
@@ -7,6 +7,7 @@ import math
 import argparse
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
+import utils
 
 parser = argparse.ArgumentParser(description='Enter runs to compare.')
 parser.add_argument('--runs', metavar='runs', type=str, nargs='+', help='runs to compare')
@@ -26,21 +27,4 @@ if runs == None:
 elif runs[0] == 'all':
     runs = ["analysis/" + run for run in os.listdir('analysis')]
 
-imgs = [mpimg.imread(run) for run in runs]
-num_imgs = len(imgs)
-ipr = 2  # Images per row
-rows = math.ceil(num_imgs / ipr) if num_imgs >= ipr else 1
-cols = ipr if num_imgs > ipr else num_imgs
-
-fig, axes = plt.subplots(rows, cols, figsize=[25, 60], sharex=True, sharey=True)
-plt.subplots_adjust(top=0.98, bottom=0.02, left=0.02, right=0.98, hspace=-0.05, wspace=-0.25)
-fig.tight_layout()
-
-for (i, img) in enumerate(imgs):
-    if rows == 1:
-        axes[i].imshow(img, aspect='auto')
-    else:
-        axes[int(i / ipr)][i % ipr].imshow(img, aspect='auto')
-[ax.set_axis_off() for ax in axes.ravel()]
-
-plt.show()
+utils.compare_plots(runs)
