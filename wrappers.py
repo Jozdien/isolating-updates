@@ -32,11 +32,11 @@ class RewardWrapper(gym.Wrapper):
     Wrapper for the LunarLander-v2 environment that allows for fuel consumption to penalized or not based on a boolean flag 'fuel'.
     step() also returns a dict containing the reward corresponding to fuel consumption.
     '''
-    def __init__(self, env, include_fuel=False, only_fuel=False, amplified_fuel=False):
+    def __init__(self, env, include_fuel=False, only_fuel=False, scale_fuel=False):
         super().__init__(env)
         self.include_fuel = include_fuel
         self.only_fuel = only_fuel
-        self.amplified_fuel = amplified_fuel
+        self.scale_fuel = scale_fuel
 
     def create_particle(self, mass, x, y, ttl):
         p = self.world.CreateDynamicBody(
@@ -202,12 +202,13 @@ class RewardWrapper(gym.Wrapper):
         self.prev_shaping = shaping
 
         fuel_reward = 0
-        if self.fuel:
-            reward -= (
-                m_power * 0.30
-            )  # less fuel spent is better, about -30 for heuristic landing
-            reward -= s_power * 0.03
-            fuel_reward -= m_power * 0.30 + s_power * 0.03
+        if self.only_fuel:
+            reward = 0
+        if self.include_fuel:
+            fuel_reward = -(m_power * 0.30 + s_power * 0.03)
+            if self.scale_fuel:
+                fuel_reward *= 5  # scale up the fuel reward by 5
+            reward += fuel_reward
 
         terminated = False
         if self.game_over or abs(state[0]) >= 1.0:
