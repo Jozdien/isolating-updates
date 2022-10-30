@@ -39,7 +39,7 @@ if multiple:
             'runs/2022-10-21_01-37-13',
         ]
     elif runs[0] == 'all':
-        runs = ["runs/" + run for run in os.listdir('runs')]
+        runs = ["runs/" + run for run in os.listdir('runs') if run != '.DS_Store']
     analyses = ['analysis/' + run.split('/')[1] + '_analysis.png' for run in runs]
 
     utils.compare_stats(runs, exclude=['Reward standard deviations', 'Fuel standard deviations', ])

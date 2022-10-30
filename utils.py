@@ -460,7 +460,7 @@ def compare_stats(runs, exclude=[]):
             vals.append(list(stat[key]))
         avg = np.mean(vals, axis=0)
         plt.plot(avg, linestyle='--', linewidth=1.5, color='black', label='Mean')
-        plt.legend()
+        plt.legend(prop={'size': 5})
     plt.show()
 
 def compare_plots(runs):
