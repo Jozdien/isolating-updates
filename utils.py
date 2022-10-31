@@ -44,6 +44,26 @@ def save_metadata(metadata, path="runs/"):
     with open(path + "metadata.json", 'w') as f:
         json.dump(metadata, f)
 
+def update_rundir(name, metadata, path="run_directory.json"):
+    '''
+    Adds a run to the run directory according to its metadata.
+    '''
+    wrappers = "WRP_1:{} WRP_2:{} TEST_ENV:{}".format(metadata['FIRST_WRAPPER'], metadata['SECOND_WRAPPER'], metadata['TEST_ENV'])
+    timesteps = "TSTEPS_1:{} TSTEPS_2:{}".format(metadata['FIRST_TRAIN_TIMESTEPS'], metadata['SECOND_TRAIN_TIMESTEPS'])
+    with open(path, 'r') as f:
+        try:
+            curr = json.load(f)
+        except:
+            curr = {}
+        if wrappers in curr and timesteps in curr[wrappers]:
+            curr[wrappers][timesteps].append(name)
+        else:
+            if wrappers not in curr:
+                curr[wrappers] = {}
+            curr[wrappers][timesteps] = [name]
+    with open(path, 'w') as f:
+        json.dump(curr, f)
+
 def save_weights(weights, path="runs/", name="weights.json"):
     '''
     Saves the weights of a model to a json file.
@@ -440,6 +460,15 @@ def analysis_plots(name, rewards, train_stats, metadata, show=True, save=False, 
         plt.savefig(path + name + '_analysis.png')
     if show:
         plt.show()
+
+def query_runs(FIRST_WRAPPER, SECOND_WRAPPER, TEST_ENV, FIRST_TRAIN_TIMESTEPS, SECOND_TRAIN_TIMESTEPS, rundir='run_directory.json'):
+    '''
+    Returns names of all runs matching the query.
+    '''
+    wrappers_key = 'WRP_1:{} WRP_2:{} TEST_ENV:{}'.format(FIRST_WRAPPER, SECOND_WRAPPER, TEST_ENV)
+    tsteps_key = 'TSTEPS_1:{} TSTEPS_2:{}'.format(FIRST_TRAIN_TIMESTEPS, SECOND_TRAIN_TIMESTEPS)
+    with open(rundir, 'r') as f:
+        return json.load(f)[wrappers_key][tsteps_key]
 
 def compare_stats(runs, exclude=[]):
     '''

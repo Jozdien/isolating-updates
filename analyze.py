@@ -28,21 +28,22 @@ runs = args.runs
 
 if multiple:
     if runs == None:
-        runs = [
-            'runs/2022-10-20_19-11-51',
-            'runs/2022-10-20_19-34-20',
-            'runs/2022-10-20_20-35-14',
-            'runs/2022-10-20_21-09-58',
-            'runs/2022-10-21_00-40-54',
-            'runs/2022-10-21_01-17-08',
-            'runs/2022-10-21_01-26-50',
-            'runs/2022-10-21_01-37-13',
-        ]
+        runs = utils.query_runs(FIRST_WRAPPER='no_fuel_env', SECOND_WRAPPER='fuel_env', TEST_ENV='fuel_env', FIRST_TRAIN_TIMESTEPS=10000, SECOND_TRAIN_TIMESTEPS=5000)
     elif runs[0] == 'all':
         runs = ["runs/" + run for run in os.listdir('runs') if run != '.DS_Store']
     analyses = ['analysis/' + run.split('/')[1] + '_analysis.png' for run in runs]
 
-    utils.compare_stats(runs, exclude=['Reward standard deviations', 'Fuel standard deviations', ])
+    utils.compare_stats(runs, exclude=[
+        # 'Reward means', 
+        'Reward standard deviations',
+        'Reward variances',
+        'Fuel zeros percent',
+        # 'Fuel means',
+        # 'Fuel means (no zeros)',
+        'Fuel standard deviations',
+        'Fuel variances',
+        'Fuel variances (no zeros)'
+    ])
     # utils.compare_plots(analyses)
 else:
     if runs == None:
