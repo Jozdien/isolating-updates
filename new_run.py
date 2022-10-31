@@ -13,8 +13,8 @@ TEST_ENV = 'fuel_env'  # env wrapper used for testing model performance
 
 POLICY = 'MlpPolicy'
 
-FIRST_TRAIN_TIMESTEPS = 20000
-SECOND_TRAIN_TIMESTEPS = 5000
+FIRST_TRAIN_TIMESTEPS = 250000
+SECOND_TRAIN_TIMESTEPS = 25000
 
 metadata = {
     'BASE_ENV': BASE_ENV,
@@ -34,7 +34,6 @@ rewards_dict = {
 
 # create base environment for wrappers
 base_env = gym.make(BASE_ENV)  # using the continuous LunarLander environment to broaden fuel consumption action space
-
 wrappers = {
     'no_fuel_env': TimeLimit(StepAPICompatibility(RewardWrapper(base_env, include_fuel=False, only_fuel=False, scale_fuel=1))),  # env with no penalty for fuel consumption
     'fuel_env': TimeLimit(StepAPICompatibility(RewardWrapper(base_env, include_fuel=True, only_fuel=False, scale_fuel=1))),  # env with penalty for fuel consumption

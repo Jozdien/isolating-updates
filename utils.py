@@ -12,7 +12,7 @@ from scipy.interpolate import make_interp_spline
 from matplotlib.gridspec import GridSpec
 
 
-def test_model(env, model, rewards_dict, phase, render=False, num_episodes=1000):
+def test_model(env, model, rewards_dict, phase, render=False, num_episodes=5000):
     '''
     Runs a model on the given environment for num_episodes.
     Stores in rewards_dict the total reward as well as the fuel reward for each episode, under the key phase.
@@ -461,13 +461,16 @@ def analysis_plots(name, rewards, train_stats, metadata, show=True, save=False, 
     if show:
         plt.show()
 
-def query_runs(FIRST_WRAPPER, SECOND_WRAPPER, TEST_ENV, FIRST_TRAIN_TIMESTEPS, SECOND_TRAIN_TIMESTEPS, rundir='run_directory.json'):
+def query_runs(FIRST_WRAPPER, SECOND_WRAPPER, TEST_ENV, FIRST_TRAIN_TIMESTEPS, SECOND_TRAIN_TIMESTEPS, ALL_TS=False, rundir='run_directory.json'):
     '''
     Returns names of all runs matching the query.
     '''
     wrappers_key = 'WRP_1:{} WRP_2:{} TEST_ENV:{}'.format(FIRST_WRAPPER, SECOND_WRAPPER, TEST_ENV)
-    tsteps_key = 'TSTEPS_1:{} TSTEPS_2:{}'.format(FIRST_TRAIN_TIMESTEPS, SECOND_TRAIN_TIMESTEPS)
+    if not ALL_TS:
+        tsteps_key = 'TSTEPS_1:{} TSTEPS_2:{}'.format(FIRST_TRAIN_TIMESTEPS, SECOND_TRAIN_TIMESTEPS)
     with open(rundir, 'r') as f:
+        if ALL_TS:
+            return sum(json.load(f)[wrappers_key].values(), [])
         return json.load(f)[wrappers_key][tsteps_key]
 
 def compare_stats(runs, exclude=[]):
