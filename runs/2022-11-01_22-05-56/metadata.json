@@ -1,0 +1,1 @@
+{"BASE_ENV": "LunarLander-v2", "FIRST_WRAPPER": "no_fuel_env", "SECOND_WRAPPER": "scaled_fuel_env", "TEST_ENV": "fuel_env", "POLICY": "MlpPolicy", "FIRST_TRAIN_TIMESTEPS": 250000, "SECOND_TRAIN_TIMESTEPS": 100000}

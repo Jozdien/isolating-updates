@@ -8,13 +8,13 @@ import utils
 
 BASE_ENV = 'LunarLander-v2'
 FIRST_WRAPPER = 'no_fuel_env'  # env wrapper used for primary training
-SECOND_WRAPPER = 'only_fuel_env'  # env wrapper using for training to subtract updates of
+SECOND_WRAPPER = 'only_scaled_fuel_env'  # env wrapper using for training to subtract updates of
 TEST_ENV = 'fuel_env'  # env wrapper used for testing model performance
 
 POLICY = 'MlpPolicy'
 
 FIRST_TRAIN_TIMESTEPS = 250000
-SECOND_TRAIN_TIMESTEPS = 5000
+SECOND_TRAIN_TIMESTEPS = 25000
 
 metadata = {
     'BASE_ENV': BASE_ENV,
