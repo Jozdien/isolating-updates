@@ -62,7 +62,7 @@ def update_rundir(name, metadata, path="run_directory.json"):
                 curr[wrappers] = {}
             curr[wrappers][timesteps] = [name]
     with open(path, 'w') as f:
-        json.dump(curr, f)
+        json.dump(curr, f, indent=4)
 
 def save_weights(weights, path="runs/", name="weights.json"):
     '''

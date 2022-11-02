@@ -14,7 +14,7 @@ TEST_ENV = 'fuel_env'  # env wrapper used for testing model performance
 POLICY = 'MlpPolicy'
 
 FIRST_TRAIN_TIMESTEPS = 250000
-SECOND_TRAIN_TIMESTEPS = 25000
+SECOND_TRAIN_TIMESTEPS = 100000
 
 metadata = {
     'BASE_ENV': BASE_ENV,
