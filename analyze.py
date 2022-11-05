@@ -28,7 +28,7 @@ runs = args.runs
 
 if multiple:
     if runs == None:
-        runs = utils.query_runs(FIRST_WRAPPER='no_fuel_env', SECOND_WRAPPER='fuel_env', TEST_ENV='fuel_env', FIRST_TRAIN_TIMESTEPS=10000, SECOND_TRAIN_TIMESTEPS=5000)
+        runs = utils.query_runs(FIRST_WRAPPER='no_fuel_env', SECOND_WRAPPER='scaled_fuel_env', TEST_ENV='fuel_env', FIRST_TRAIN_TIMESTEPS=250000, SECOND_TRAIN_TIMESTEPS=25000)
     elif runs[0] == 'all':
         runs = ["runs/" + run for run in os.listdir('runs') if run != '.DS_Store']
     analyses = ['analysis/' + run.split('/')[1] + '_analysis.png' for run in runs]
@@ -55,4 +55,4 @@ else:
     metadata = utils.load_from_json(path + "/metadata.json")
 
     # utils.print_stats(rewards)
-    utils.analysis_plots(name=path[path.rfind('/')+1:], rewards=rewards, train_stats=train_stats, metadata=metadata, save=True, show=False)
+    utils.analysis_plots(name=path[path.rfind('/')+1:], rewards=rewards, train_stats=train_stats, metadata=metadata, save=True, show=True)
