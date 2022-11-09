@@ -8,13 +8,13 @@ import utils
 
 BASE_ENV = 'LunarLander-v2'
 FIRST_WRAPPER = 'no_fuel_env'  # env wrapper used for primary training
-SECOND_WRAPPER = 'only_scaled_fuel_env'  # env wrapper using for training to subtract updates of
+SECOND_WRAPPER = 'scaled_fuel_env'  # env wrapper using for training to subtract updates of
 TEST_ENV = 'fuel_env'  # env wrapper used for testing model performance
 
 POLICY = 'MlpPolicy'
 
 FIRST_TRAIN_TIMESTEPS = 250000
-SECOND_TRAIN_TIMESTEPS = 100000
+SECOND_TRAIN_TIMESTEPS = 90000
 
 metadata = {
     'BASE_ENV': BASE_ENV,
@@ -74,6 +74,14 @@ updates = utils.weight_diff(post_update_weights, pre_update_weights)
 
 sub_update_weights = utils.weight_diff(pre_update_weights, updates)
 model.set_parameters(utils.to_dict('policy', sub_update_weights), exact_match=False)
+
+# TESTING ADDING THESE TWO LINES
+# if subtracted model can re-learn capabilities and still maximizes fuel, then the update signal contains objective
+# if it can't - it might still just have a lot of interference, but it might also be that the update signal is just noise
+# to separate from the other runs, SECOND_TRAIN_TIMESTEPS is set to 90k
+model.set_env(FIRST_TRAIN_ENV)
+model.learn(total_timesteps=100000)
+
 model.save(dir_name + 'sub_update_weights_model')
 
 utils.test_model(TEST_ENV, model, rewards_dict, 'sub_update', render=False, num_episodes=5000)
