@@ -48,8 +48,8 @@ def update_rundir(name, metadata, path="run_directory.json"):
     '''
     Adds a run to the run directory according to its metadata.
     '''
-    wrappers = "WRP_1:{} WRP_2:{} TEST_ENV:{}".format(metadata['FIRST_WRAPPER'], metadata['SECOND_WRAPPER'], metadata['TEST_ENV'])
-    timesteps = "TSTEPS_1:{} TSTEPS_2:{}".format(metadata['FIRST_TRAIN_TIMESTEPS'], metadata['SECOND_TRAIN_TIMESTEPS'])
+    wrappers = "WRP_1:{} WRP_2:{} TEST_ENV:{} WRP_3:{}".format(metadata['FIRST_WRAPPER'], metadata['SECOND_WRAPPER'], metadata['TEST_ENV'], metadata['SALVAGE_WRAPPER'])
+    timesteps = "TSTEPS_1:{} TSTEPS_2:{} TSTEPS_3:{}".format(metadata['FIRST_TRAIN_TIMESTEPS'], metadata['SECOND_TRAIN_TIMESTEPS'], metadata['SALVAGE_TIMESTEPS'])
     with open(path, 'r') as f:
         try:
             curr = json.load(f)
@@ -184,75 +184,75 @@ def phase_rewards(rewards):
     '''
     Returns three dicts for three phases, containing net rewards from each step and fuel rewards from each step.
     '''
-    return rewards['pre_update'], rewards['post_update'], rewards['sub_update']
+    return rewards['init'], rewards['pre_update'], rewards['post_update'], rewards['sub_update'], rewards['salvage']
 
 def phase_total_rewards(rewards):
     '''
     Returns three lists for three phases, containing the total reward from each step.
     '''
-    return rewards['pre_update']['total_reward'], rewards['post_update']['total_reward'], rewards['sub_update']['total_reward']
+    return rewards['init']['total_reward'], rewards['pre_update']['total_reward'], rewards['post_update']['total_reward'], rewards['sub_update']['total_reward'], rewards['salvage']['total_reward']
 
 def phase_fuel_rewards(rewards):
     '''
     Returns three lists for three phases, containing fuel rewards from each step.
     '''
-    return rewards['pre_update']['fuel_reward'], rewards['post_update']['fuel_reward'], rewards['sub_update']['fuel_reward']
+    return rewards['init']['fuel_reward'], rewards['pre_update']['fuel_reward'], rewards['post_update']['fuel_reward'], rewards['sub_update']['fuel_reward'], rewards['salvage']['fuel_reward']
 
 def reward_means(rewards):
     '''
     Returns the mean reward for each phase.
     '''
-    pre, post, sub = phase_total_rewards(rewards)
-    return statistics.mean(pre), statistics.mean(post), statistics.mean(sub)
+    init, pre, post, sub, salvage = phase_total_rewards(rewards)
+    return statistics.mean(init), statistics.mean(pre), statistics.mean(post), statistics.mean(sub), statistics.mean(salvage)
 
 def fuel_means(rewards):
     '''
     Returns mean fuel reward for each phase.
     '''
-    pre, post, sub = phase_fuel_rewards(rewards)
-    return statistics.mean(pre), statistics.mean(post), statistics.mean(sub)
+    init, pre, post, sub, salvage = phase_fuel_rewards(rewards)
+    return statistics.mean(init), statistics.mean(pre), statistics.mean(post), statistics.mean(sub), statistics.mean(salvage)
 
 def reward_stds(rewards):
     '''
     Returns the standard deviation of the reward for each phase.
     '''
-    pre, post, sub = phase_total_rewards(rewards)
-    return statistics.stdev(pre), statistics.stdev(post), statistics.stdev(sub)
+    init, pre, post, sub, salvage = phase_total_rewards(rewards)
+    return statistics.stdev(init), statistics.stdev(pre), statistics.stdev(post), statistics.stdev(sub), statistics.stdev(salvage)
 
 def fuel_stds(rewards):
     '''
     Returns standard deviation of fuel reward for each phase.
     '''
-    pre, post, sub = phase_fuel_rewards(rewards)
-    return statistics.stdev(pre), statistics.stdev(post), statistics.stdev(sub)
+    init, pre, post, sub, salvage = phase_fuel_rewards(rewards)
+    return statistics.stdev(init), statistics.stdev(pre), statistics.stdev(post), statistics.stdev(sub), statistics.stdev(salvage)
 
 def reward_variance(rewards):
     '''
     Returns the variance of the reward for each phase.
     '''
-    pre, post, sub = phase_total_rewards(rewards)
-    return statistics.variance(pre), statistics.variance(post), statistics.variance(sub)
+    init, pre, post, sub, salvage = phase_total_rewards(rewards)
+    return statistics.variance(init), statistics.variance(pre), statistics.variance(post), statistics.variance(sub), statistics.variance(salvage)
 
 def fuel_variance(rewards):
     '''
     Returns variance of fuel reward for each phase.
     '''
-    pre, post, sub = phase_fuel_rewards(rewards)
-    return statistics.variance(pre), statistics.variance(post), statistics.variance(sub)
+    init, pre, post, sub, salvage = phase_fuel_rewards(rewards)
+    return statistics.variance(init), statistics.variance(pre), statistics.variance(post), statistics.variance(sub), statistics.variance(salvage)
 
 def fuel_zeros_count(rewards):
     '''
     Returns number of 0 fuel rewards in each phase.
     '''
-    pre, post, sub = phase_fuel_rewards(rewards)
-    return pre.count(0), post.count(0), sub.count(0)
+    init, pre, post, sub, salvage = phase_fuel_rewards(rewards)
+    return init.count(0), pre.count(0), post.count(0), sub.count(0), salvage.count(0)
 
 def fuel_zeros_percent(rewards):
     '''
     Returns percentage of 0 fuel rewards in each phase.
     '''
-    pre, post, sub = phase_fuel_rewards(rewards)
-    return pre.count(0) / len(pre), post.count(0) / len(post), sub.count(0) / len(sub)
+    init, pre, post, sub, salvage = phase_fuel_rewards(rewards)
+    return init.count(0)/len(init), pre.count(0)/len(pre), post.count(0)/len(post), sub.count(0)/len(sub), salvage.count(0)/len(salvage)
 
 def remove_zeros(lst):
     '''
@@ -264,22 +264,22 @@ def fuel_means_no_zeros(rewards):
     '''
     Returns mean fuel reward for each phase, with 0s removed.
     '''
-    pre, post, sub = phase_fuel_rewards(rewards)
-    return statistics.mean(remove_zeros(pre)), statistics.mean(remove_zeros(post)), statistics.mean(remove_zeros(sub))
+    init, pre, post, sub, salvage = phase_fuel_rewards(rewards)
+    return statistics.mean(remove_zeros(init)), statistics.mean(remove_zeros(pre)), statistics.mean(remove_zeros(post)), statistics.mean(remove_zeros(sub)), statistics.mean(remove_zeros(salvage))
 
 def fuel_stds_no_zeros(rewards):
     '''
     Returns standard deviation of fuel reward for each phase, with 0s removed.
     '''
-    pre, post, sub = phase_fuel_rewards(rewards)
-    return statistics.stdev(remove_zeros(pre)), statistics.stdev(remove_zeros(post)), statistics.stdev(remove_zeros(sub))
+    init, pre, post, sub, salvage = phase_fuel_rewards(rewards)
+    return statistics.stdev(remove_zeros(init)), statistics.stdev(remove_zeros(pre)), statistics.stdev(remove_zeros(post)), statistics.stdev(remove_zeros(sub)), statistics.stdev(remove_zeros(salvage))
 
 def fuel_variance_no_zeros(rewards):
     '''
     Returns variance of fuel reward for each phase, with 0s removed.
     '''
-    pre, post, sub = phase_fuel_rewards(rewards)
-    return statistics.variance(remove_zeros(pre)), statistics.variance(remove_zeros(post)), statistics.variance(remove_zeros(sub))
+    init, pre, post, sub, salvage = phase_fuel_rewards(rewards)
+    return statistics.variance(remove_zeros(init)), statistics.variance(remove_zeros(pre)), statistics.variance(remove_zeros(post)), statistics.variance(remove_zeros(sub)), statistics.variance(remove_zeros(salvage))
 
 def remove_outliers(data, m=100):
     '''
@@ -340,12 +340,14 @@ def rw_plot_exact(rewards, fuel=False, show=True):
     Plots the total or fuel reward for each phase.
     '''
     if fuel:
-        pre, post, sub = phase_fuel_rewards(rewards)
+        init, pre, post, sub, salvage = phase_fuel_rewards(rewards)
     else:
-        pre, post, sub = phase_total_rewards(rewards)
+        init, pre, post, sub, salvage = phase_total_rewards(rewards)
+    plt.plot(init, label='initial')
     plt.plot(pre, label='pre')
     plt.plot(post, label='post')
     plt.plot(sub, label='sub')
+    plt.plot(salvage, label='salvage')
     plt.xlabel('Timesteps')
     if fuel:
         plt.ylabel('Fuel reward')
@@ -362,11 +364,20 @@ def rw_plot_fit(rewards, fuel=False, outliers=True, show=True):
     Plots the total or fuel reward for each phase, with a fitted curve line.
     '''
     if fuel:
-        pre, post, sub = phase_fuel_rewards(rewards)
+        init, pre, post, sub, salvage = phase_fuel_rewards(rewards)
     else:
-        pre, post, sub = phase_total_rewards(rewards)
+        init, pre, post, sub, salvage = phase_total_rewards(rewards)
         if not outliers:
-            pre, post, sub = remove_outliers(pre), remove_outliers(post), remove_outliers(sub)
+            init, pre, post, sub, salvage = remove_outliers(init), remove_outliers(pre), remove_outliers(post), remove_outliers(sub), remove_outliers(salvage)
+    y = init
+    x = [i for i in range(len(y))]
+    x_y_spline = make_interp_spline(x, y)
+    if fuel:
+        x_new = np.linspace(x[0], x[-1], 40)
+    else:
+        x_new = np.linspace(x[0], x[-1], 500)
+    y_new = x_y_spline(x_new)
+    plt.plot(x_new, y_new, label='initial')
     y = pre
     x = [i for i in range(len(y))]
     x_y_spline = make_interp_spline(x, y)
@@ -394,6 +405,15 @@ def rw_plot_fit(rewards, fuel=False, outliers=True, show=True):
         x_new = np.linspace(x[0], x[-1], 100)
     y_new = x_y_spline(x_new)
     plt.plot(x_new, y_new, label='sub')
+    y = salvage
+    x = [i for i in range(len(y))]
+    x_y_spline = make_interp_spline(x, y)
+    if fuel:
+        x_new = np.linspace(x[0], x[-1], 40)
+    else:
+        x_new = np.linspace(x[0], x[-1], 100)
+    y_new = x_y_spline(x_new)
+    plt.plot(x_new, y_new, label='salvage')
     plt.xlabel('Timesteps')
     if fuel:
         plt.ylabel('Fuel reward')
@@ -461,13 +481,15 @@ def analysis_plots(name, rewards, train_stats, metadata, show=True, save=False, 
     if show:
         plt.show()
 
-def query_runs(FIRST_WRAPPER, SECOND_WRAPPER, TEST_ENV, FIRST_TRAIN_TIMESTEPS, SECOND_TRAIN_TIMESTEPS, ALL_TS=False, rundir='run_directory.json'):
+def query_runs(FIRST_WRAPPER, SECOND_WRAPPER, TEST_ENV, SALVAGE_WRAPPER, 
+                FIRST_TRAIN_TIMESTEPS, SECOND_TRAIN_TIMESTEPS, SALVAGE_TIMESTEPS, 
+                ALL_TS=False, rundir='run_directory.json'):
     '''
     Returns names of all runs matching the query.
     '''
-    wrappers_key = 'WRP_1:{} WRP_2:{} TEST_ENV:{}'.format(FIRST_WRAPPER, SECOND_WRAPPER, TEST_ENV)
+    wrappers_key = 'WRP_1:{} WRP_2:{} TEST_ENV:{} WRP_3:{}'.format(FIRST_WRAPPER, SECOND_WRAPPER, TEST_ENV, SALVAGE_WRAPPER)
     if not ALL_TS:
-        tsteps_key = 'TSTEPS_1:{} TSTEPS_2:{}'.format(FIRST_TRAIN_TIMESTEPS, SECOND_TRAIN_TIMESTEPS)
+        tsteps_key = 'TSTEPS_1:{} TSTEPS_2:{} TSTEPS_3:{}'.format(FIRST_TRAIN_TIMESTEPS, SECOND_TRAIN_TIMESTEPS, SALVAGE_TIMESTEPS)
     with open(rundir, 'r') as f:
         if ALL_TS:
             return sum(json.load(f)[wrappers_key].values(), [])
@@ -485,7 +507,7 @@ def compare_stats(runs, exclude=[]):
             continue
         fig = plt.figure()
         plt.title(key)
-        x_axis = ['pre', 'post', 'sub']
+        x_axis = ['init', 'pre', 'post', 'sub', 'salvage']
         vals = []
         for (i, stat) in enumerate(stats):
             plt.plot(x_axis, stat[key], linewidth=0.5, label=runs[i])
