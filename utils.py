@@ -510,6 +510,9 @@ def compare_stats(runs, exclude=[]):
         x_axis = ['init', 'pre', 'post', 'sub', 'salvage']
         vals = []
         for (i, stat) in enumerate(stats):
+            if key == 'Reward means':  # Just removing the init phase here for better visualization
+                x_axis = ['pre', 'post', 'sub', 'salvage']
+                stat[key] = stat[key][1:]
             plt.plot(x_axis, stat[key], linewidth=0.5, label=runs[i])
             vals.append(list(stat[key]))
         avg = np.mean(vals, axis=0)

@@ -29,7 +29,7 @@ runs = args.runs
 if multiple:
     if runs == None:
         runs = utils.query_runs(FIRST_WRAPPER='no_fuel_env', SECOND_WRAPPER='scaled_fuel_env', TEST_ENV='fuel_env', SALVAGE_WRAPPER='no_fuel_env',
-                                FIRST_TRAIN_TIMESTEPS=250000, SECOND_TRAIN_TIMESTEPS=100000, SALVAGE_TIMESTEPS=200000)
+                                FIRST_TRAIN_TIMESTEPS=250000, SECOND_TRAIN_TIMESTEPS=100000, SALVAGE_TIMESTEPS=100000)
     elif runs[0] == 'all':
         runs = ["runs/" + run for run in os.listdir('runs') if run != '.DS_Store']
     analyses = ['analysis/' + run.split('/')[1] + '_analysis.png' for run in runs]
